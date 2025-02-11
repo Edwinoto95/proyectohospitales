@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Asistentes</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
+    <!-- Agregar Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background-color: #f4f7fc; color: #333; }
+        header { background-color: #007bff; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 24px; }
+        nav { display: flex; gap: 15px; }
+        nav a { color: white; text-decoration: none; font-size: 16px; padding: 8px 15px; border-radius: 5px; transition: background-color 0.3s ease-in-out; }
+        nav a:hover { background-color: #0056b3; }
+        .container { max-width: 1200px; margin: 20px auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; }
+        h1 { text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: calc(100% - 20px); padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; font-size: 16px; border-radius: 5px; border: none; cursor: pointer; }
+        button[type="submit"] { background-color: #28a745; color: white; }
+        button.cancel { background-color: #dc3545; color: white; }
+        button:hover { opacity: 0.9; }
+        .table-container { margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #007bff; color: white; }
+        .btn-enviar {
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            padding: 6px 12px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-editar {
+            background-color: #ffc107;
+            color: white;
+            border-radius: 5px;
+            padding: 6px 12px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-eliminar {
+            background-color: #dc3545;
+            color: white;
+            border-radius: 5px;
+            padding: 6px 12px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-enviar:hover { background-color: #0056b3; }
+        .btn-editar:hover { background-color: #e0a800; }
+        .btn-eliminar:hover { background-color: #c82333; }
+        .checkbox-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .checkbox-container label { display: flex; align-items: center; }
+        footer { background-color: #007bff; color: white; padding: 15px 0; text-align: center; font-size: 14px; margin-top: 30px; }
+        footer a { color: white; text-decoration: none; }
+
+        /* Estilo para los botones en la misma línea */
+        .acciones-container {
+            display: flex;
+            gap: 10px;
+        }
+        button i {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Sistema de Notificaciones</h1>
+    <nav>
+        <a href="index.html">Inicio</a>
+        <a href="asistentes.html">Asistentes</a>
+        <a href="eventos.html">Eventos</a>
+        <a href="premio.html">Premio</a>
+    </nav>
+</header>
+
+<div class="container">
+    <h1>Gestión de Asistentes</h1>
+    <form id="asistente-form">
+        <input type="hidden" id="asistente-id">
+        <div class="form-group">
+            <label>Nombres Completos:</label>
+            <input type="text" id="nombre" required>
+        </div>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="email" required>
+        </div>
+        <button type="submit" class="btn-enviar"><i class="fas fa-save"></i> Guardar</button>
+        <button type="button" class="btn-eliminar" onclick="cancelarEdicion()"><i class="fas fa-times"></i> Cancelar</button>
+    </form>
+
+    <div class="table-container">
+        <table id="asistentes-table" class="display">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los datos se agregarán dinámicamente aquí -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Botones para descargar PDF y Excel -->
+    <div class="acciones-container">
+        <button class="btn-enviar" onclick="descargarPDF()"><i class="fas fa-file-pdf"></i> Descargar PDF</button>
+        <button class="btn-enviar" onclick="descargarExcel()"><i class="fas fa-file-excel"></i> Descargar Excel</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<script>
+    // Variables globales
+    let table;
+
+    // Función para cargar asistentes
+    function cargarAsistentes() {
+        const asistentes = JSON.parse(localStorage.getItem('asistentes')) || [];
+        table.clear();
+        asistentes.forEach((asistente, index) => {
+            table.row.add([
+                asistente.nombre,
+                asistente.email,
+                `<div class="acciones-container">
+                    <button class="btn-editar" onclick="editarAsistente(${index})"><i class="fas fa-edit"></i> Editar</button>
+                    <button class="btn-eliminar" onclick="eliminarAsistente(${index})"><i class="fas fa-trash"></i> Eliminar</button>
+                </div>`
+            ]);
+        });
+        table.draw();
+    }
+
+    // Función para eliminar asistente
+    function eliminarAsistente(index) {
+        const asistentes = JSON.parse(localStorage.getItem('asistentes')) || [];
+        asistentes.splice(index, 1);
+        localStorage.setItem('asistentes', JSON.stringify(asistentes));
+        cargarAsistentes();
+        iziToast.success({
+            title: '¡Éxito!',
+            message: 'Asistente eliminado correctamente.',
+            position: 'topRight'
+        });
+    }
+
+    // Función para editar asistente
+    function editarAsistente(index) {
+        const asistentes = JSON.parse(localStorage.getItem('asistentes')) || [];
+        const asistente = asistentes[index];
+        $('#nombre').val(asistente.nombre);
+        $('#email').val(asistente.email);
+        $('#asistente-id').val(index);
+    }
+
+    // Función para cancelar edición
+    function cancelarEdicion() {
+        $('#asistente-form')[0].reset();
+        $('#asistente-id').val('');
+    }
+
+    // Función para descargar PDF
+    function descargarPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const asistentes = JSON.parse(localStorage.getItem('asistentes')) || [];
+        let y = 10;
+        doc.text("Lista de Asistentes", 14, y);
+        y += 10;
+        asistentes.forEach(asistente => {
+            doc.text(`${asistente.nombre} - ${asistente.email}`, 14, y);
+            y += 10;
+        });
+        doc.save('asistentes.pdf');
+    }
+
+    // Función para descargar Excel
+    function descargarExcel() {
+        const asistentes = JSON.parse(localStorage.getItem('asistentes')) || [];
+        const ws = XLSX.utils.json_to_sheet(asistentes);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Asistentes');
+        XLSX.writeFile(wb, 'asistentes.xlsx');
+    }
+
+    // Inicialización cuando el documento está listo
+    $(document).ready(function() {
+        // Inicializar DataTable
+        table = $('#asistentes-table').DataTable({
+            "language": {
+                "sProcessing": "Procesando...",
+                "sLengthMenu": "Mostrar _MENU_ registros",
+                "sZeroRecords": "No se encontraron resultados",
+                "sEmptyTable": "Ningún dato disponible en esta tabla",
+                "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+                "sSearch": "Buscar:",
+                "oPaginate": {
+                    "sFirst": "Primero",
+                    "sPrevious": "Anterior",
+                    "sNext": "Siguiente",
+                    "sLast": "Último"
+                }
+            }
+        });
+
+        // Cargar asistentes iniciales
+        cargarAsistentes();
+
+        // Manejar envío del formulario
+        $('#asistente-form').submit(function(event) {
+            event.preventDefault();
+            const nombre = $('#nombre').val();
+            const email = $('#email').val();
+            const asistenteId = $('#asistente-id').val();
+            const asistentes = JSON.parse(localStorage.getItem('asistentes')) || [];
+
+            if (asistenteId !== '') {
+                asistentes[asistenteId] = { nombre, email };
+            } else {
+                asistentes.push({ nombre, email });
+            }
+
+            localStorage.setItem('asistentes', JSON.stringify(asistentes));
+            iziToast.success({
+                title: '¡Éxito!',
+                message: 'Asistente guardado correctamente.',
+                position: 'topRight'
+            });
+            cargarAsistentes();
+            $('#asistente-form')[0].reset();
+            $('#asistente-id').val('');
+        });
+    });
+</script>
+
+<footer>
+    <p>&copy; 2025 Sistema de Notificaciones | Desarrollado por <strong>Edwin Danilo Oto Toapanta</strong></p>
+</footer>
+
+</body>
+</html>

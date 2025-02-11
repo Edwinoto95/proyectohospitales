@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Fechas de Entrega</title>
+
+    <!-- SweetAlert CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <!-- DataTables Buttons CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css">
+
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            left: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 60px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .status-pending {
+            color: #e67e22;
+        }
+
+        .status-completed {
+            color: #27ae60;
+        }
+
+        .status-delayed {
+            color: #c0392b;
+        }
+
+        /* Style the nav links inside the header */
+        header .nav-links {
+            display: flex;
+            justify-content: center;
+            /* Center the links horizontally */
+            gap: 20px;
+            /* Space between the links */
+            margin-top: 10px;
+            /* Add some space between the heading and the links */
+        }
+
+        header .nav-links a {
+            color: #3498db;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        header .nav-links a:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        /* Styles for the export buttons */
+        #exportButtons {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            /* Space between buttons */
+        }
+
+        #exportPdfButton,
+        #exportExcelButton {
+            background-color: #27ae60;
+            /* Green color */
+            color: white;
+            padding: 12px 24px;
+            /* Increased padding for larger buttons */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            /* Increased font size */
+        }
+
+        #exportPdfButton:hover,
+        #exportExcelButton:hover {
+            background-color: #219653;
+            /* Darker green on hover */
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Gestión de Fechas de Entrega</h1>
+        <nav class="nav-links">
+            <a href="index.html">Inicio</a>
+            <a href="proyectos.html">Proyectos</a>
+            <a href="hospital.html">Hospitales</a>
+            <a href="proveedor.html">Proveedores</a>
+            <a href="fechas.html">Fechas de Entrega</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <form id="deliveryForm">
+            <div class="form-group">
+                <label for="projectSelect">Proyecto:</label>
+                <select id="projectSelect" required>
+                    <option value="">Seleccione un proyecto</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="supplierSelect">Proveedor:</label>
+                <select id="supplierSelect" required>
+                    <option value="">Seleccione un proveedor</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="deliveryDate">Fecha de Entrega Programada:</label>
+                <input type="date" id="deliveryDate" required>
+            </div>
+            <div class="form-group">
+                <label for="deliveryStatus">Estado:</label>
+                <select id="deliveryStatus" required>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Completado">Completado</option>
+                    <option value="Retrasado">Retrasado</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="deliveryNotes">Notas:</label>
+                <input type="text" id="deliveryNotes">
+            </div>
+            <input type="hidden" id="deliveryId">
+            <button type="submit">Guardar</button>
+        </form>
+        <div>
+            
+            <br><br>
+         
+          </div>
+          
+
+        <div id="exportButtons">
+            <button id="exportPdfButton">Exportar a PDF</button>
+            <button id="exportExcelButton">Exportar a Excel</button>
+        </div>
+
+        <table id="deliveryTable" class="display">
+            <thead>
+                <tr>
+                    <th>Proyecto</th>
+                    <th>Proveedor</th>
+                    <th>Fecha de Entrega</th>
+                    <th>Estado</th>
+                    <th>Notas</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p>© 2025 Sistema de Gestión de Centros de Salud</p>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JavaScript -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables Buttons JavaScript -->
+    <script src="https://cdn.datatables.net/buttons/2.1.0/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.print.min.js"></script>
+
+    <!-- SweetAlert JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+        let deliveryTable; // DataTables variable
+
+        // Function to initialize DataTables
+        function initializeDataTable() {
+            deliveryTable = $('#deliveryTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+                },
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
+            });
+        }
+
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDeliveries();
+            loadProjectsAndSuppliers();
+
+            //Initialize DataTables after the DOM is fully loaded
+            initializeDataTable();
+
+            // Export to PDF function
+            document.getElementById('exportPdfButton').addEventListener('click', function () {
+                deliveryTable.buttons('.buttons-pdf').trigger();
+            });
+
+            // Export to Excel function
+            document.getElementById('exportExcelButton').addEventListener('click', function () {
+                deliveryTable.buttons('.buttons-excel').trigger();
+            });
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('deliveryForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            saveDelivery();
+        });
+
+        function loadProjectsAndSuppliers() {
+            // Cargar proyectos en el select
+            const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+            const projectSelect = document.getElementById('projectSelect');
+            projectSelect.innerHTML = '<option value="">Seleccione un proyecto</option>';
+            projects.forEach(project => {
+                projectSelect.innerHTML += `<option value="${project.id}">${project.name}</option>`;
+            });
+
+            // Cargar proveedores en el select
+            const suppliers = JSON.parse(localStorage.getItem('suppliers') || '[]');
+            const supplierSelect = document.getElementById('supplierSelect');
+            supplierSelect.innerHTML = '<option value="">Seleccione un proveedor</option>';
+            suppliers.forEach(supplier => {
+                supplierSelect.innerHTML += `<option value="${supplier.id}">${supplier.name}</option>`;
+            });
+        }
+
+        function saveDelivery() {
+            const id = document.getElementById('deliveryId').value;
+            const delivery = {
+                id: id ? id : Date.now(),
+                projectId: document.getElementById('projectSelect').value,
+                projectName: document.getElementById('projectSelect').options[document.getElementById('projectSelect').selectedIndex].text,
+                supplierId: document.getElementById('supplierSelect').value,
+                supplierName: document.getElementById('supplierSelect').options[document.getElementById('supplierSelect').selectedIndex].text,
+                date: document.getElementById('deliveryDate').value,
+                status: document.getElementById('deliveryStatus').value,
+                notes: document.getElementById('deliveryNotes').value
+            };
+
+            let deliveries = JSON.parse(localStorage.getItem('deliveries') || '[]');
+            if (id) {
+                // Editing existing delivery
+                deliveries = deliveries.map(d => d.id === delivery.id ? delivery : d);
+            } else {
+                deliveries.push(delivery);
+            }
+            localStorage.setItem('deliveries', JSON.stringify(deliveries));
+
+            loadDeliveries();
+            document.getElementById('deliveryForm').reset();
+            document.getElementById('deliveryId').value = ""; // Clear delivery Id
+
+            // SweetAlert success notification
+            Swal.fire({
+                title: '¡Guardado!',
+                text: 'La fecha de entrega ha sido guardada correctamente.',
+                icon: 'success',
+                confirmButtonText: 'Ok'
+            });
+        }
+
+        function loadDeliveries() {
+            const deliveries = JSON.parse(localStorage.getItem('deliveries') || '[]');
+
+            const tbody = document.querySelector('#deliveryTable tbody');
+            tbody.innerHTML = '';
+
+            deliveries.forEach(delivery => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${delivery.projectName}</td>
+                    <td>${delivery.supplierName}</td>
+                    <td>${formatDate(delivery.date)}</td>
+                    <td class="status-${delivery.status.toLowerCase()}">${delivery.status}</td>
+                    <td>${delivery.notes}</td>
+                    <td>
+                        <button onclick="editDelivery(${delivery.id})" class="edit-button">Editar</button>
+                        <button onclick="deleteDelivery(${delivery.id})" class="delete-button">Eliminar</button>
+                    </td>
+                `;
+            });
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('es-ES', options);
+        }
+
+        function deleteDelivery(id) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "No podrás revertir esto.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let deliveries = JSON.parse(localStorage.getItem('deliveries') || '[]');
+                    deliveries = deliveries.filter(delivery => delivery.id !== id);
+                    localStorage.setItem('deliveries', JSON.stringify(deliveries));
+                    loadDeliveries();
+                    Swal.fire(
+                        '¡Eliminado!',
+                        'La fecha de entrega ha sido eliminada.',
+                        'success'
+                    );
+                }
+            });
+        }
+
+        function editDelivery(id) {
+            const deliveries = JSON.parse(localStorage.getItem('deliveries') || '[]');
+            const delivery = deliveries.find(d => d.id === id);
+            if (delivery) {
+                document.getElementById('deliveryId').value = delivery.id; // Add Delivery id
+                document.getElementById('projectSelect').value = delivery.projectId;
+                document.getElementById('supplierSelect').value = delivery.supplierId;
+                document.getElementById('deliveryDate').value = delivery.date;
+                document.getElementById('deliveryStatus').value = delivery.status;
+                document.getElementById('deliveryNotes').value = delivery.notes;
+
+                Swal.fire({
+                    title: 'Editando',
+                    text: 'Por favor, guarda los cambios para la fecha de entrega.',
+                    icon: 'info',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>
